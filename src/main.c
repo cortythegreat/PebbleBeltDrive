@@ -38,17 +38,6 @@ PBL_APP_INFO(MY_UUID,
 
 Window window;
 
-static const char* const DOWS[] = {
-  "SUN",
-  "MON",
-  "TUE",
-  "WED",
-  "THU",
-  "FRI",
-  "SAT"
-};
-
-
 typedef struct BeltLayer {
 	Layer layer;
 	TextLayer textLayer;
@@ -59,11 +48,6 @@ typedef struct BeltLayer {
 	GTextAlignment text_alignment:2;
 	GColor foreground_color:2;
 } BeltLayer;
-
-//RotBmpPairContainer  m_OverlayContainerHR;
-//RotBmpPairContainer  m_OverlayContainerMin;
-//RotBmpPairContainer  m_OverlayContainerSec;
-
 
 int current_HOUR_LAYER_COUNT;
 
@@ -165,6 +149,7 @@ void min_bg_display_layer_update_callback(Layer *me, GContext* ctx)
 void beltlayer_update_callback(BeltLayer *me, GContext* ctx)
 {
 	/*
+	//Code for debugging, leave it here for now.
 	GRect rect = layer_get_frame(&(me->layer));
 	GRect rect2 = GRect(0, 0, rect.size.w, rect.size.h);
 	graphics_context_set_stroke_color(ctx, FOREGROUND_COLOR);
@@ -173,6 +158,7 @@ void beltlayer_update_callback(BeltLayer *me, GContext* ctx)
 	graphics_context_set_text_color(ctx, me->foreground_color);
 	
 /*
+	//Code for debugging, leave it here for now.
 	text_layer_init(&(me->textLayer), window.layer.frame);
   text_layer_set_text_color(&(me->textLayer), me->foreground_color);
   text_layer_set_background_color(&(me->textLayer), GColorClear);
@@ -208,7 +194,6 @@ void animate_Hrs(Animation* animation, uint32_t timenormalized)
 		//add tweening
 		//tweeen should return the position we want right now.
 		xDist = tween((float) timenormalized, m_hr_total_movement.x, (float) ANIMATION_NORMALIZED_MAX);
-		
 	}
 	else
 	{
@@ -251,7 +236,6 @@ void animate_Hrs_teardown(Animation* animation)
 	animate_Hrs(animation, ANIMATION_NORMALIZED_MAX);
 	m_curHR = m_reqHR;
 }
-
 
 void update_Hr_Pos(int curHR)
 {
@@ -405,8 +389,6 @@ void animate_Min_Bot(Animation* animation, uint32_t timenormalized)
 	for(int index = 0; index < MIN_BOTTOM_COUNT; index++)
 	{
 		GRect rect = layer_get_frame(&m_min_bottom_Layer[index].layer);
-//		int xStart = rect.origin.x;
-//		int yStart = rect.origin.y;
 
 		//subtract belt movement from original postion to find new position.
 		rect.origin.x = m_min_bottom_Layer[index].orig_point.x - xDist;
@@ -424,19 +406,7 @@ void animate_Min_Bot(Animation* animation, uint32_t timenormalized)
 	
 		m_min_bottom_Layer[index].newOrigin.x = rect.origin.x;
 		m_min_bottom_Layer[index].newOrigin.y = rect.origin.y;
-/*		if (rect.origin.y >= (SCREEN_HEIGHT + rect.size.h) || rect.origin.y < (-1 * rect.size.h))
 		{
-			//if we're off the edge of the screen, lets not move 
-			if (yStart > 0)
-			{
-				//we need to move this to be ready for the next move.
-				rect.origin.y = -1 * rect.size.h;
-				rect.origin.x = 60; //don't like hardcoding this.'
-				layer_set_frame(&m_min_bottom_Layer[index].layer, rect);
-			}
-		}
-		else
-*/		{
 			layer_set_frame(&m_min_bottom_Layer[index].layer, rect);
 		}
 	}
@@ -472,8 +442,6 @@ void animate_Min_Top(Animation* animation, uint32_t timenormalized)
 	for(int index = 0; index < MIN_TOP_COUNT; index++)
 	{
 		GRect rect = layer_get_frame(&m_min_top_Layer[index].layer);
-//		int xStart = rect.origin.x;
-//		int yStart = rect.origin.y;
 
 		//subtract belt movement from original postion to find new position.
 		rect.origin.x = m_min_top_Layer[index].orig_point.x - xDist;
@@ -491,19 +459,7 @@ void animate_Min_Top(Animation* animation, uint32_t timenormalized)
 	
 		m_min_top_Layer[index].newOrigin.x = rect.origin.x;
 		m_min_top_Layer[index].newOrigin.y = rect.origin.y;
-/*		if (rect.origin.y >= (SCREEN_HEIGHT + rect.size.h) || rect.origin.y < (-1 * rect.size.h))
 		{
-			//if we're off the edge of the screen, lets not move 
-			if (yStart > 0)
-			{
-				//we need to move this to be ready for the next move.
-				rect.origin.y = -1 * rect.size.h;
-				rect.origin.x = 60; //don't like hardcoding this.'
-				layer_set_frame(&m_min_top_Layer[index].layer, rect);
-			}
-		}
-		else
-*/		{
 			layer_set_frame(&m_min_top_Layer[index].layer, rect);
 		}
 	}
@@ -575,7 +531,7 @@ void update_Min_Pos(int curMin)
 }
 
 void handle_seconds_tick(AppContextRef ctx, PebbleTickEvent *t) {
-	(void)t; // TODO: Pass the time direct to the layers?
+	(void)t; //these need to be called so they are used somewhere in the method.
 	(void)ctx;
 	
 	PblTm tm;
@@ -605,7 +561,6 @@ void beltLayer_init(BeltLayer *layer, GRect rect, char* text, GFont font, GColor
 	layer->layer.update_proc = (LayerUpdateProc) &beltlayer_update_callback;
 	layer->text_alignment = ta;
 	layer_add_child(&window.layer, &(layer->layer));
-
 }
 
 void updateStringFromNum(char* str, int num, bool pad)
@@ -621,57 +576,6 @@ void updateStringFromNum(char* str, int num, bool pad)
 		str[0] = '0' + num;
 		str[1] = 0;
 	}
-}
-
-/*
-Layer m_dow_bg_Layer;
-bool m_dow_init;
-BeltLayer m_dow_Layer[HOUR_LAYER_COUNT];
-Animation prop_ani_dow;
-int dow_animation_duration;
-AnimationImplementation m_dow_Animation;
-GRect m_dow_Bounds;
-int m_curdow;
-int m_reqdow;
-*/
-
-void InitDOW()
-{
-//	m_HR_Animation.update = &animate_Hrs;
-//	m_HR_Animation.teardown = &animate_Hrs_teardown;
-	m_reqdow = m_curdow = 0; //default to midnight
-	
-//#define DOW_LAYER_COUNT 7
-//#define DOW_START_X 100
-//#define DOW_START_Y 100
-
-	//Day of Week band
-	GRect rhrRect = GRect(100, 25, 40, 80);
-	layer_init(&m_dow_bg_Layer, rhrRect);
-	m_dow_bg_Layer.update_proc = &hr_bg_display_layer_update_callback;
-	layer_add_child(&window.layer, &m_dow_bg_Layer);
-
-	m_dow_Bounds = GRect(DOW_START_X, 25 - 20 * DOW_LAYER_COUNT/2, 40, 20 * DOW_LAYER_COUNT);
-	
-	m_dow_init = false;
-	for(int i = 0; i < DOW_LAYER_COUNT; i++)
-	{
-		GRect rect;
-		int y = DOW_START_Y + i*20;
-		if (y > (m_dow_Bounds.size.h + m_dow_Bounds.origin.y))
-		{
-			rect =  GRect(DOW_START_X , y - m_dow_Bounds.size.h, 40, 20);
-		}
-		else
-		{
-		 rect =  GRect(DOW_START_X, y, 40, 20);
-		}
-		beltLayer_init(&m_dow_Layer[i], rect, (char*) DOWS[i], fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_KEY_MIN_12)), FOREGROUND_COLOR, GTextAlignmentCenter);
-	}
-	dow_animation_duration = 1500;
-//	animation_init(&prop_ani_dow);
-//	animation_set_implementation(&prop_ani_dow, &m_dow_Animation);
-//	animation_set_curve(&prop_ani_dow, AnimationCurveEaseInOut);
 }
 
 void InitHours()
@@ -710,8 +614,6 @@ void InitHours()
 	animation_init(&prop_ani_hr);
 	animation_set_implementation(&prop_ani_hr, &m_HR_Animation);
 	animation_set_curve(&prop_ani_hr, AnimationCurveEaseInOut);
-	
-	//set up Animation implementation
 }
 
 void InitSeconds()
@@ -753,7 +655,6 @@ void InitSeconds()
 	animation_init(&prop_ani);
 	animation_set_implementation(&prop_ani, &m_Sec_Animation);
 	animation_set_curve(&prop_ani, AnimationCurveEaseInOut);
-
 }
 
 void InitMin()
@@ -803,9 +704,7 @@ void InitMin()
 	animation_set_implementation(&prop_ani_bmin, &m_MinBottom_Animation);
 	animation_set_curve(&prop_ani_bmin, AnimationCurveEaseInOut);
 
-
 	//top mins
-	
 	m_MinTop_Animation.update = &animate_Min_Top;
 	m_MinTop_Animation.teardown = &animate_Min_Top_teardown;
 
@@ -836,7 +735,6 @@ void InitMin()
 	animation_init(&prop_ani_tmin);
 	animation_set_implementation(&prop_ani_tmin, &m_MinTop_Animation);
 	animation_set_curve(&prop_ani_tmin, AnimationCurveEaseInOut);
-
 }
 
 void drawOverlay(Layer *me, GContext* ctx)
@@ -877,7 +775,6 @@ void drawOverlay(Layer *me, GContext* ctx)
 	};
 	GPATH_INIT(&botHRarrowPath, arrow_points2);
     gpath_draw_filled(ctx, &botHRarrowPath);
-
 	
 	//Draw min arrows
 	static GPath topMinarrowPath;
@@ -920,7 +817,6 @@ void drawOverlay(Layer *me, GContext* ctx)
 	GPATH_INIT(&botMinarrowPath2, arrow_points6);
     gpath_draw_filled(ctx, &botMinarrowPath2);
 
-	
 	//draw seconds overlay
 	static GPath topSecArrowPath;
 	static GPoint arrow_points7[] = {
@@ -941,40 +837,7 @@ void drawOverlay(Layer *me, GContext* ctx)
 	};
 	GPATH_INIT(&botSecArrowPath, arrow_points8);
     gpath_draw_filled(ctx, &botSecArrowPath);
-
-	//draw line over middle of seconds to indicate current seconds
-//	graphics_draw_line(ctx, GPoint(SEC_START_X+15, 132), GPoint(SEC_START_X+15, 156));
-
-	
-	//draw arrow.
-/*
-	static GPath arrowPath;
-	static GPoint arrow_points[] = {
-    { SEC_START_X + 7, 122 },
-    { SEC_START_X + 12, 122 },
-    { SEC_START_X + 12, 112 },
-    { SEC_START_X + 18, 112 },
-    { SEC_START_X + 18, 122 },
-    { SEC_START_X + 23, 122 },
-    { SEC_START_X + 15, 132 },
-    { SEC_START_X + 7, 122 }
-	};
-	
-	GPATH_INIT(&arrowPath, arrow_points);
-	graphics_context_set_fill_color(ctx, FOREGROUND_COLOR);
-    gpath_draw_filled(ctx, &arrowPath);
-*/
-//    graphics_context_set_stroke_color(ctx, FOREGROUND_COLOR);
-//    gpath_draw_outline(ctx, &arrowPath);
-
-
-
-	//GRect minOver2 = GRect(MIN_TOP_START_X, MIN_START_Y, 30, 70);
-	//graphics_draw_round_rect(ctx, minOver2, 0);
-
 }
-
-TextLayer text_date_layer;
 
 void handle_init(AppContextRef ctx) {
 	(void)ctx;
@@ -987,52 +850,25 @@ void handle_init(AppContextRef ctx) {
 
 	resource_init_current_app(&APP_RESOURCES);
 
-	//	InitDOW();
-
 	InitHours();
 	
 	InitMin();
 		
 	InitSeconds();
-	
 
 	//add overlay
 	GRect overlaysize = GRect(0, 0 , SCREEN_WIDTH, SCREEN_HEIGHT);
 	layer_init(&m_overlay, overlaysize);
 	m_overlay.update_proc = &drawOverlay;
 	layer_add_child(&window.layer, &m_overlay);
-	
-/*	
-	rotbmp_pair_init_container(RESOURCE_ID_FACE_OVERLAY_WHITE, RESOURCE_ID_FACE_OVERLAY_BLACK, &m_OverlayContainerHR);
-	m_OverlayContainerHR.layer.layer.frame.origin.x = 14;
-	m_OverlayContainerHR.layer.layer.frame.origin.y = 28;
-	layer_add_child(&m_overlay, &m_OverlayContainerHR.layer.layer);
-
-	rotbmp_pair_init_container(RESOURCE_ID_FACE_OVERLAY_MIN_WHITE, RESOURCE_ID_FACE_OVERLAY_MIN_BLACK, &m_OverlayContainerMin);
-	m_OverlayContainerMin.layer.layer.frame.origin.x = MIN_TOP_START_X-12;
-	m_OverlayContainerMin.layer.layer.frame.origin.y = MIN_START_Y-15;
-	layer_add_child(&m_overlay, &m_OverlayContainerMin.layer.layer);
-
-	rotbmp_pair_init_container(RESOURCE_ID_FACE_OVERLAY_SEC_WHITE, RESOURCE_ID_FACE_OVERLAY_SEC_BLACK, &m_OverlayContainerSec);
-	m_OverlayContainerSec.layer.layer.frame.origin.x = SEC_START_X-18;
-	m_OverlayContainerSec.layer.layer.frame.origin.y = 103;
-	layer_add_child(&m_overlay, &m_OverlayContainerSec.layer.layer);
-*/
 }
 
 void handle_deinit(AppContextRef ctx)
 {
 	(void)ctx;
-
-//deinit image
-//	rotbmp_pair_deinit_container(&m_OverlayContainerHR);
-//	rotbmp_pair_deinit_container(&m_OverlayContainerMin);
-//	rotbmp_pair_deinit_container(&m_OverlayContainerSec);
 }
 
 void pbl_main(void *params) {
-
-	
 	PebbleAppHandlers handlers = {
 		.init_handler = &handle_init,
 		.deinit_handler = &handle_deinit,
